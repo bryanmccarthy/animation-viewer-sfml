@@ -1,12 +1,16 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 
+#define START_POS_X 10
+#define START_POS_Y 50
+
 int main(int argc, char* argv[])
 {
     sf::RenderWindow window(sf::VideoMode(1000, 800), "animation viewer");
 
     int numRows = 1;
-    int numCols = 10;
+    int numCols = 1;
+    float scaleFactor = 1.0;
 
     sf::Texture texture;
     if(!texture.loadFromFile("player_run.png"))
@@ -15,7 +19,7 @@ int main(int argc, char* argv[])
     }
 
     sf::Sprite sprite(texture);
-    sprite.setPosition(10, 10);
+    sprite.setPosition(START_POS_X, START_POS_Y);
     
     int spriteSheetWidth = texture.getSize().x; // Width of the sprite sheet
     int spriteSheetHeight = texture.getSize().y; // Height of the sprite sheet
@@ -24,7 +28,7 @@ int main(int argc, char* argv[])
 
     // Define the border for the sprite sheet
     sf::RectangleShape border(sf::Vector2f(spriteSheetWidth, spriteSheetHeight));
-    border.setPosition(10, 10);
+    border.setPosition(START_POS_X, START_POS_Y);
     border.setFillColor(sf::Color::Transparent);
     border.setOutlineColor(sf::Color::White);
     border.setOutlineThickness(1);
@@ -49,25 +53,48 @@ int main(int argc, char* argv[])
                     window.close();
                     break;
                 case sf::Event::KeyPressed:
-                    if(event.key.code == sf::Keyboard::Right)
+                    if(event.key.code == sf::Keyboard::Q)
                     {
                         numCols++;
                         cellWidth = spriteSheetWidth / numCols;
                     }
-                    else if(event.key.code == sf::Keyboard::Left)
+                    else if(event.key.code == sf::Keyboard::A)
                     {
-                        numCols--;
-                        cellWidth = spriteSheetWidth / numCols;
+                        if(numCols > 1)
+                        {
+                            numCols--;
+                            cellWidth = spriteSheetWidth / numCols;
+                        }
                     }
-                    else if(event.key.code == sf::Keyboard::Up)
+                    else if(event.key.code == sf::Keyboard::W)
                     {
                         numRows++;
                         cellHeight = spriteSheetHeight / numRows;
                     }
+                    else if(event.key.code == sf::Keyboard::S)
+                    {
+                        if(numRows > 1)
+                        {
+                            numRows--;
+                            cellHeight = spriteSheetHeight / numRows;
+                        }
+                    }
+                    else if(event.key.code == sf::Keyboard::Up)
+                    {
+                        scaleFactor = scaleFactor + 0.1;
+                        sprite.setScale(scaleFactor, scaleFactor);
+                        border.setScale(scaleFactor, scaleFactor);
+                        std::cout << "ScaleFactor: " << scaleFactor << std::endl;
+                    }
                     else if(event.key.code == sf::Keyboard::Down)
                     {
-                        numRows --;
-                        cellHeight = spriteSheetHeight / numRows;
+                        if(scaleFactor > 0.6)
+                        {
+                            scaleFactor = scaleFactor - 0.1;
+                            sprite.setScale(scaleFactor, scaleFactor);
+                            border.setScale(scaleFactor, scaleFactor);
+                        }
+                        std::cout << "ScaleFactor: " << scaleFactor << std::endl;
                     }
                 default:
                     break;
@@ -86,8 +113,8 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(10 + col * cellWidth, 10)),
-                sf::Vertex(sf::Vector2f(10 + col * cellWidth, 10 + spriteSheetHeight))
+                sf::Vertex(sf::Vector2f(START_POS_X + col * (cellWidth * scaleFactor), START_POS_Y)),
+                sf::Vertex(sf::Vector2f(START_POS_X + col * (cellWidth * scaleFactor), START_POS_Y + (spriteSheetHeight * scaleFactor)))
             };
 
             window.draw(line, 2, sf::Lines);
@@ -98,8 +125,8 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(10, 10 + row * cellHeight)),
-                sf::Vertex(sf::Vector2f(10 + spriteSheetWidth, 10 + row * cellHeight))
+                sf::Vertex(sf::Vector2f(START_POS_X, START_POS_Y + row * (cellHeight * scaleFactor))),
+                sf::Vertex(sf::Vector2f(START_POS_X + (spriteSheetWidth * scaleFactor), START_POS_Y + row * (cellHeight * scaleFactor)))
             };
 
             window.draw(line, 2, sf::Lines);
