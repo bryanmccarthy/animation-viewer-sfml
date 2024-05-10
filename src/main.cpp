@@ -2,6 +2,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
+#include <cmath>
 
 #define SPRITESHEET_POS_X 5
 #define SPRITESHEET_POS_Y 5
@@ -12,7 +13,8 @@ int main(int argc, char* argv[])
 
     int numRows = 1;
     int numCols = 1;
-    float scaleFactor = 1.0;
+    float spritesheetScaleFactor = 1.0;
+    float frameScaleFactor = 1.0;
     bool animationPlaying = false;
     int currFrameX = 0;
     int currFrameY = 0;
@@ -128,34 +130,63 @@ int main(int argc, char* argv[])
     decreaseFpsButton.setOutlineColor(sf::Color::White);
     decreaseFpsButton.setOutlineThickness(1);
 
-    sf::CircleShape zoomOutButton;
-    zoomOutButton.setRadius(12);
-    zoomOutButton.setFillColor(brown_five);
-    zoomOutButton.setPosition(690, 120);
-    zoomOutButton.setOutlineColor(sf::Color::White);
-    zoomOutButton.setOutlineThickness(1);
+    sf::CircleShape spritesheetZoomOutButton;
+    spritesheetZoomOutButton.setRadius(12);
+    spritesheetZoomOutButton.setFillColor(brown_five);
+    spritesheetZoomOutButton.setPosition(690, 120);
+    spritesheetZoomOutButton.setOutlineColor(sf::Color::White);
+    spritesheetZoomOutButton.setOutlineThickness(1);
 
-    sf::CircleShape zoomInButton;
-    zoomInButton.setRadius(12);
-    zoomInButton.setFillColor(brown_five);
-    zoomInButton.setPosition(740, 120);
-    zoomInButton.setOutlineColor(sf::Color::White);
-    zoomInButton.setOutlineThickness(1);
+    sf::CircleShape spritesheetZoomInButton;
+    spritesheetZoomInButton.setRadius(12);
+    spritesheetZoomInButton.setFillColor(brown_five);
+    spritesheetZoomInButton.setPosition(740, 120);
+    spritesheetZoomInButton.setOutlineColor(sf::Color::White);
+    spritesheetZoomInButton.setOutlineThickness(1);
+
+    sf::CircleShape frameZoomOutButton;
+    frameZoomOutButton.setRadius(12);
+    frameZoomOutButton.setFillColor(brown_five);
+    frameZoomOutButton.setPosition(690, 400);
+    frameZoomOutButton.setOutlineColor(sf::Color::White);
+    frameZoomOutButton.setOutlineThickness(1);
+
+    sf::CircleShape frameZoomInButton;
+    frameZoomInButton.setRadius(12);
+    frameZoomInButton.setFillColor(brown_five);
+    frameZoomInButton.setPosition(740, 400);
+    frameZoomInButton.setOutlineColor(sf::Color::White);
+    frameZoomInButton.setOutlineThickness(1);
 
     sf::RectangleShape minus(sf::Vector2f(20, 2));
     minus.setFillColor(sf::Color::White);
-    minus.setPosition(zoomOutButton.getPosition().x + zoomOutButton.getRadius() - minus.getSize().x / 2,
-                      zoomOutButton.getPosition().y + zoomOutButton.getRadius() - minus.getSize().y / 2);
+    minus.setPosition(spritesheetZoomOutButton.getPosition().x + spritesheetZoomOutButton.getRadius() - minus.getSize().x / 2,
+                      spritesheetZoomOutButton.getPosition().y + spritesheetZoomOutButton.getRadius() - minus.getSize().y / 2);
 
     sf::RectangleShape plusHorizontal(sf::Vector2f(20, 2));
     plusHorizontal.setFillColor(sf::Color::White);
-    plusHorizontal.setPosition(zoomInButton.getPosition().x + zoomInButton.getRadius() - plusHorizontal.getSize().x / 2,
-                               zoomInButton.getPosition().y + zoomInButton.getRadius() - plusHorizontal.getSize().y / 2);
+    plusHorizontal.setPosition(spritesheetZoomInButton.getPosition().x + spritesheetZoomInButton.getRadius() - plusHorizontal.getSize().x / 2,
+                               spritesheetZoomInButton.getPosition().y + spritesheetZoomInButton.getRadius() - plusHorizontal.getSize().y / 2);
 
     sf::RectangleShape plusVertical(sf::Vector2f(2, 20));
     plusVertical.setFillColor(sf::Color::White);
-    plusVertical.setPosition(zoomInButton.getPosition().x + zoomInButton.getRadius() - plusVertical.getSize().x / 2,
-                             zoomInButton.getPosition().y + zoomInButton.getRadius() - plusVertical.getSize().y / 2);
+    plusVertical.setPosition(spritesheetZoomInButton.getPosition().x + spritesheetZoomInButton.getRadius() - plusVertical.getSize().x / 2,
+                             spritesheetZoomInButton.getPosition().y + spritesheetZoomInButton.getRadius() - plusVertical.getSize().y / 2);
+
+    sf::RectangleShape frameMinus(sf::Vector2f(20, 2));
+    frameMinus.setFillColor(sf::Color::White);
+    frameMinus.setPosition(frameZoomOutButton.getPosition().x + frameZoomOutButton.getRadius() - frameMinus.getSize().x / 2,
+                      frameZoomOutButton.getPosition().y + frameZoomOutButton.getRadius() - frameMinus.getSize().y / 2);
+
+    sf::RectangleShape framePlusHorizontal(sf::Vector2f(20, 2));
+    framePlusHorizontal.setFillColor(sf::Color::White);
+    framePlusHorizontal.setPosition(frameZoomInButton.getPosition().x + frameZoomInButton.getRadius() - framePlusHorizontal.getSize().x / 2,
+                               frameZoomInButton.getPosition().y + frameZoomInButton.getRadius() - framePlusHorizontal.getSize().y / 2);
+
+    sf::RectangleShape framePlusVertical(sf::Vector2f(2, 20));
+    framePlusVertical.setFillColor(sf::Color::White);
+    framePlusVertical.setPosition(frameZoomInButton.getPosition().x + frameZoomInButton.getRadius() - framePlusVertical.getSize().x / 2,
+                             frameZoomInButton.getPosition().y + frameZoomInButton.getRadius() - framePlusVertical.getSize().y / 2);
     
     sf::Font font;
     if(!font.loadFromFile("Anonymous_Pro.ttf"))
@@ -169,9 +200,11 @@ int main(int argc, char* argv[])
     colsDisplayString.setPosition(660, 60);
     sf::Text frameSizeDisplayString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight), font, 16);
     frameSizeDisplayString.setPosition(5, 580);
-    sf::Text scaleDisplayString("SCALE:" + std::to_string(scaleFactor), font, 16);
-    scaleDisplayString.setPosition(125, 580);
-    sf::Text fpsDisplayString("FPS:" + std::to_string(1.0f / frameDuration), font, 24);
+    sf::Text spritesheetScaleDisplayString("SPRITESHEET SCALE:" + std::to_string(spritesheetScaleFactor), font, 16);
+    spritesheetScaleDisplayString.setPosition(150, 580);
+    sf::Text frameScaleDisplayString("FRAME SCALE:" + std::to_string(frameScaleFactor), font, 16);
+    frameScaleDisplayString.setPosition(410, 580);
+    sf::Text fpsDisplayString("FPS:" + std::to_string((int)std::round(1.0f / frameDuration)), font, 24);
     fpsDisplayString.setPosition(660, 350);
     
     while(window.isOpen())
@@ -232,35 +265,54 @@ int main(int argc, char* argv[])
                                 frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
                             }
                         }
-                        else if(zoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        else if(spritesheetZoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            if(scaleFactor > 0.6)
+                            if(spritesheetScaleFactor > 0.6)
                             {
-                                scaleFactor = scaleFactor - 0.1;
-                                spritesheet.setScale(scaleFactor, scaleFactor);
-                                spritesheetBorder.setScale(scaleFactor, scaleFactor);
-                                scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
+                                spritesheetScaleFactor = spritesheetScaleFactor - 0.1;
+                                spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
+                                spritesheetBorder.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
+                                spritesheetScaleDisplayString.setString("SPRITESHEET SCALE:" + std::to_string(spritesheetScaleFactor));
                             }
                         }
-                        else if(zoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        else if(spritesheetZoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            scaleFactor = scaleFactor + 0.1;
-                            spritesheet.setScale(scaleFactor, scaleFactor);
-                            spritesheetBorder.setScale(scaleFactor, scaleFactor);
-                            scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
+                            spritesheetScaleFactor = spritesheetScaleFactor + 0.1;
+                            spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
+                            spritesheetBorder.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
+                            spritesheetScaleDisplayString.setString("SPRITESHEET SCALE:" + std::to_string(spritesheetScaleFactor));
+                        }
+                        else if(frameZoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            frameScaleFactor = frameScaleFactor + 0.1;
+                            frameSprite.setScale(frameScaleFactor, frameScaleFactor);
+                            frameBorder.setScale(frameScaleFactor, frameScaleFactor);
+                            frameScaleDisplayString.setString("FRAME SCALE:" + std::to_string(frameScaleFactor));
+                        }
+                        else if(frameZoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            if(frameScaleFactor > 0.6)
+                            {
+                                frameScaleFactor = frameScaleFactor - 0.1;
+                                frameSprite.setScale(frameScaleFactor, frameScaleFactor);
+                                frameBorder.setScale(frameScaleFactor, frameScaleFactor);
+                                frameScaleDisplayString.setString("FRAME SCALE:" + std::to_string(frameScaleFactor));
+                            }
                         }
                         else if(increaseFpsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
                             float fps = 1.0f / frameDuration;
                             frameDuration = 1.0f / (fps + 1);
-                            fpsDisplayString.setString("FPS:" + std::to_string(1.0f / frameDuration));
-                            
+                            fpsDisplayString.setString("FPS:" + std::to_string((int)std::round(1.0f / frameDuration)));
                         }
                         else if(decreaseFpsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            float fps = 1.0f / frameDuration;
-                            frameDuration = 1.0f / (fps - 1);
-                            fpsDisplayString.setString("FPS:" + std::to_string(1.0f / frameDuration));
+                            if(1.0f / frameDuration > 1)
+                            {
+                                float fps = 1.0f / frameDuration;
+                                frameDuration = 1.0f / (fps - 1);
+                                fpsDisplayString.setString("FPS:" + std::to_string((int)std::round(1.0f / frameDuration)));
+                            }
                         }
                     }
                     break;
@@ -292,8 +344,8 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * scaleFactor), SPRITESHEET_POS_Y), gray),
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * scaleFactor), SPRITESHEET_POS_Y + (spriteSheetHeight * scaleFactor)), gray)
+                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y), gray),
+                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y + (spriteSheetHeight * spritesheetScaleFactor)), gray)
             };
 
             window.draw(line, 2, sf::Lines);
@@ -304,31 +356,30 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X, SPRITESHEET_POS_Y + row * (cellHeight * scaleFactor)), gray),
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + (spriteSheetWidth * scaleFactor), SPRITESHEET_POS_Y + row * (cellHeight * scaleFactor)), gray)
+                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X, SPRITESHEET_POS_Y + row * (cellHeight * spritesheetScaleFactor)), gray),
+                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + (spriteSheetWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y + row * (cellHeight * spritesheetScaleFactor)), gray)
             };
 
             window.draw(line, 2, sf::Lines);
         }
 
         if (animationPlaying && clock.getElapsedTime().asSeconds() > frameDuration) {
-            // Move to the next frame
             currFrameX++;
             if (currFrameX >= numCols) {
                 currFrameX = 0;
                 currFrameY++;
                 if (currFrameY >= numRows) {
-                    currFrameY = 0; // Loop back to the first frame
+                    currFrameY = 0;
                 }
             }
 
             // Set the new texture rectangle for the current frame
             frameSprite.setTextureRect(sf::IntRect(currFrameX * cellWidth, currFrameY * cellHeight, cellWidth, cellHeight));
 
-            // Reset the clock for the next frame
             clock.restart();
         }
 
+        // GUI
         window.draw(configBackground);
         window.draw(increaseRowsButton);
         window.draw(decreaseRowsButton);
@@ -336,15 +387,20 @@ int main(int argc, char* argv[])
         window.draw(decreaseColsButton);
         window.draw(increaseFpsButton);
         window.draw(decreaseFpsButton);
-        window.draw(zoomOutButton);
-        window.draw(zoomInButton);
+        window.draw(spritesheetZoomOutButton);
+        window.draw(spritesheetZoomInButton);
+        window.draw(frameZoomOutButton);
+        window.draw(frameZoomInButton);
         window.draw(minus);
         window.draw(plusHorizontal);
         window.draw(plusVertical);
-
+        window.draw(frameMinus);
+        window.draw(framePlusHorizontal);
+        window.draw(framePlusVertical);
         window.draw(rowsDisplayString);
         window.draw(colsDisplayString);
-        window.draw(scaleDisplayString);
+        window.draw(spritesheetScaleDisplayString);
+        window.draw(frameScaleDisplayString);
         window.draw(frameSizeDisplayString);
         window.draw(fpsDisplayString);
 
