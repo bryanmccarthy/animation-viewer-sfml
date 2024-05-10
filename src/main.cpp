@@ -109,6 +109,35 @@ int main(int argc, char* argv[])
     decreaseColsButton.setFillColor(brown_five);
     decreaseColsButton.setOutlineColor(sf::Color::White);
     decreaseColsButton.setOutlineThickness(1);
+
+    sf::CircleShape zoomOutButton;
+    zoomOutButton.setRadius(12);
+    zoomOutButton.setFillColor(brown_five);
+    zoomOutButton.setPosition(690, 120);
+    zoomOutButton.setOutlineColor(sf::Color::White);
+    zoomOutButton.setOutlineThickness(1);
+
+    sf::CircleShape zoomInButton;
+    zoomInButton.setRadius(12);
+    zoomInButton.setFillColor(brown_five);
+    zoomInButton.setPosition(740, 120);
+    zoomInButton.setOutlineColor(sf::Color::White);
+    zoomInButton.setOutlineThickness(1);
+
+    sf::RectangleShape minus(sf::Vector2f(20, 2));
+    minus.setFillColor(sf::Color::White);
+    minus.setPosition(zoomOutButton.getPosition().x + zoomOutButton.getRadius() - minus.getSize().x / 2,
+                      zoomOutButton.getPosition().y + zoomOutButton.getRadius() - minus.getSize().y / 2);
+
+    sf::RectangleShape plusHorizontal(sf::Vector2f(20, 2));
+    plusHorizontal.setFillColor(sf::Color::White);
+    plusHorizontal.setPosition(zoomInButton.getPosition().x + zoomInButton.getRadius() - plusHorizontal.getSize().x / 2,
+                               zoomInButton.getPosition().y + zoomInButton.getRadius() - plusHorizontal.getSize().y / 2);
+
+    sf::RectangleShape plusVertical(sf::Vector2f(2, 20));
+    plusVertical.setFillColor(sf::Color::White);
+    plusVertical.setPosition(zoomInButton.getPosition().x + zoomInButton.getRadius() - plusVertical.getSize().x / 2,
+                             zoomInButton.getPosition().y + zoomInButton.getRadius() - plusVertical.getSize().y / 2);
     
     sf::Font font;
     if(!font.loadFromFile("Anonymous_Pro.ttf"))
@@ -183,18 +212,8 @@ int main(int argc, char* argv[])
                                 frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
                             }
                         }
-                    }
-                    break;
-                case sf::Event::KeyPressed:
-                    switch(event.key.code)
-                    {
-                        case sf::Keyboard::Up:
-                            scaleFactor = scaleFactor + 0.1;
-                            spritesheet.setScale(scaleFactor, scaleFactor);
-                            spritesheetBorder.setScale(scaleFactor, scaleFactor);
-                            scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
-                            break;
-                        case sf::Keyboard::Down:
+                        else if(zoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
                             if(scaleFactor > 0.6)
                             {
                                 scaleFactor = scaleFactor - 0.1;
@@ -202,6 +221,19 @@ int main(int argc, char* argv[])
                                 spritesheetBorder.setScale(scaleFactor, scaleFactor);
                                 scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
                             }
+                        }
+                        else if(zoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            scaleFactor = scaleFactor + 0.1;
+                            spritesheet.setScale(scaleFactor, scaleFactor);
+                            spritesheetBorder.setScale(scaleFactor, scaleFactor);
+                            scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
+                        }
+                    }
+                    break;
+                case sf::Event::KeyPressed:
+                    switch(event.key.code)
+                    {
                         case sf::Keyboard::Z:
                             animationPlaying = !animationPlaying;
                         default:
@@ -269,6 +301,12 @@ int main(int argc, char* argv[])
         window.draw(decreaseRowsButton);
         window.draw(increaseColsButton);
         window.draw(decreaseColsButton);
+        window.draw(zoomOutButton);
+        window.draw(zoomInButton);
+        window.draw(minus);
+        window.draw(plusHorizontal);
+        window.draw(plusVertical);
+
         window.draw(rowsDisplayString);
         window.draw(colsDisplayString);
         window.draw(scaleDisplayString);
