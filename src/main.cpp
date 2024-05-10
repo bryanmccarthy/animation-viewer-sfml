@@ -110,6 +110,24 @@ int main(int argc, char* argv[])
     decreaseColsButton.setOutlineColor(sf::Color::White);
     decreaseColsButton.setOutlineThickness(1);
 
+    sf::ConvexShape increaseFpsButton;
+    increaseFpsButton.setPointCount(3);
+    increaseFpsButton.setPoint(0, sf::Vector2f(770, 350));
+    increaseFpsButton.setPoint(1, sf::Vector2f(760, 365));
+    increaseFpsButton.setPoint(2, sf::Vector2f(780, 365));
+    increaseFpsButton.setFillColor(brown_five);
+    increaseFpsButton.setOutlineColor(sf::Color::White);
+    increaseFpsButton.setOutlineThickness(1);
+
+    sf::ConvexShape decreaseFpsButton;
+    decreaseFpsButton.setPointCount(3);
+    decreaseFpsButton.setPoint(0, sf::Vector2f(760, 370));
+    decreaseFpsButton.setPoint(1, sf::Vector2f(780, 370));
+    decreaseFpsButton.setPoint(2, sf::Vector2f(770, 385));
+    decreaseFpsButton.setFillColor(brown_five);
+    decreaseFpsButton.setOutlineColor(sf::Color::White);
+    decreaseFpsButton.setOutlineThickness(1);
+
     sf::CircleShape zoomOutButton;
     zoomOutButton.setRadius(12);
     zoomOutButton.setFillColor(brown_five);
@@ -153,6 +171,8 @@ int main(int argc, char* argv[])
     frameSizeDisplayString.setPosition(5, 580);
     sf::Text scaleDisplayString("SCALE:" + std::to_string(scaleFactor), font, 16);
     scaleDisplayString.setPosition(125, 580);
+    sf::Text fpsDisplayString("FPS:" + std::to_string(1.0f / frameDuration), font, 24);
+    fpsDisplayString.setPosition(660, 350);
     
     while(window.isOpen())
     {
@@ -229,6 +249,19 @@ int main(int argc, char* argv[])
                             spritesheetBorder.setScale(scaleFactor, scaleFactor);
                             scaleDisplayString.setString("SCALE:" + std::to_string(scaleFactor));
                         }
+                        else if(increaseFpsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            float fps = 1.0f / frameDuration;
+                            frameDuration = 1.0f / (fps + 1);
+                            fpsDisplayString.setString("FPS:" + std::to_string(1.0f / frameDuration));
+                            
+                        }
+                        else if(decreaseFpsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            float fps = 1.0f / frameDuration;
+                            frameDuration = 1.0f / (fps - 1);
+                            fpsDisplayString.setString("FPS:" + std::to_string(1.0f / frameDuration));
+                        }
                     }
                     break;
                 case sf::Event::KeyPressed:
@@ -301,6 +334,8 @@ int main(int argc, char* argv[])
         window.draw(decreaseRowsButton);
         window.draw(increaseColsButton);
         window.draw(decreaseColsButton);
+        window.draw(increaseFpsButton);
+        window.draw(decreaseFpsButton);
         window.draw(zoomOutButton);
         window.draw(zoomInButton);
         window.draw(minus);
@@ -311,6 +346,7 @@ int main(int argc, char* argv[])
         window.draw(colsDisplayString);
         window.draw(scaleDisplayString);
         window.draw(frameSizeDisplayString);
+        window.draw(fpsDisplayString);
 
         window.display();
     }
