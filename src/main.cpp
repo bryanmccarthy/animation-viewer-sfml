@@ -73,6 +73,42 @@ int main(int argc, char* argv[])
     frameBorder.setFillColor(sf::Color::Transparent);
     frameBorder.setOutlineColor(gray);
     frameBorder.setOutlineThickness(1);
+
+    sf::ConvexShape increaseRowsButton;
+    increaseRowsButton.setPointCount(3);
+    increaseRowsButton.setPoint(0, sf::Vector2f(770, 10));
+    increaseRowsButton.setPoint(1, sf::Vector2f(760, 25));
+    increaseRowsButton.setPoint(2, sf::Vector2f(780, 25));
+    increaseRowsButton.setFillColor(brown_five);
+    increaseRowsButton.setOutlineColor(sf::Color::White);
+    increaseRowsButton.setOutlineThickness(1);
+
+    sf::ConvexShape decreaseRowsButton;
+    decreaseRowsButton.setPointCount(3);
+    decreaseRowsButton.setPoint(0, sf::Vector2f(760, 30));
+    decreaseRowsButton.setPoint(1, sf::Vector2f(780, 30));
+    decreaseRowsButton.setPoint(2, sf::Vector2f(770, 45));
+    decreaseRowsButton.setFillColor(brown_five);
+    decreaseRowsButton.setOutlineColor(sf::Color::White);
+    decreaseRowsButton.setOutlineThickness(1);
+
+    sf::ConvexShape increaseColsButton;
+    increaseColsButton.setPointCount(3);
+    increaseColsButton.setPoint(0, sf::Vector2f(770, 60));
+    increaseColsButton.setPoint(1, sf::Vector2f(760, 75));
+    increaseColsButton.setPoint(2, sf::Vector2f(780, 75));
+    increaseColsButton.setFillColor(brown_five);
+    increaseColsButton.setOutlineColor(sf::Color::White);
+    increaseColsButton.setOutlineThickness(1);
+
+    sf::ConvexShape decreaseColsButton;
+    decreaseColsButton.setPointCount(3);
+    decreaseColsButton.setPoint(0, sf::Vector2f(760, 80));
+    decreaseColsButton.setPoint(1, sf::Vector2f(780, 80));
+    decreaseColsButton.setPoint(2, sf::Vector2f(770, 95));
+    decreaseColsButton.setFillColor(brown_five);
+    decreaseColsButton.setOutlineColor(sf::Color::White);
+    decreaseColsButton.setOutlineThickness(1);
     
     sf::Font font;
     if(!font.loadFromFile("Anonymous_Pro.ttf"))
@@ -83,7 +119,7 @@ int main(int argc, char* argv[])
     sf::Text rowsDisplayString("ROWS:" + std::to_string(numRows), font, 24);
     rowsDisplayString.setPosition(660, 10);
     sf::Text colsDisplayString("COLS:" + std::to_string(numCols), font, 24);
-    colsDisplayString.setPosition(660, 50);
+    colsDisplayString.setPosition(660, 60);
     sf::Text frameSizeDisplayString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight), font, 16);
     frameSizeDisplayString.setPosition(5, 580);
     sf::Text scaleDisplayString("SCALE:" + std::to_string(scaleFactor), font, 16);
@@ -100,37 +136,22 @@ int main(int argc, char* argv[])
                 case sf::Event::Closed:
                     window.close();
                     break;
-                case sf::Event::KeyPressed:
-                    switch(event.key.code)
+                case sf::Event::MouseButtonPressed:
+                    if(event.mouseButton.button == sf::Mouse::Left)
                     {
-                        case sf::Keyboard::Q:
-                            numCols++;
-                            cellWidth = spriteSheetWidth / numCols;
-                            colsDisplayString.setString("COLS:" + std::to_string(numCols));
-                            frameSizeDisplayString.setString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight));
-                            frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
-                            frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
-                            break;
-                        case sf::Keyboard::A:
-                            if(numCols > 1)
-                            {
-                                numCols--;
-                                cellWidth = spriteSheetWidth / numCols;
-                                colsDisplayString.setString("COLS:" + std::to_string(numCols));
-                                frameSizeDisplayString.setString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight));
-                                frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
-                                frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
-                            }
-                            break;
-                        case sf::Keyboard::W:
+                        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+                        if(increaseRowsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
                             numRows++;
                             cellHeight = spriteSheetHeight / numRows;
                             rowsDisplayString.setString("ROWS:" + std::to_string(numRows));
                             frameSizeDisplayString.setString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight));
                             frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
                             frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
-                            break;
-                        case sf::Keyboard::S:
+                        }
+                        else if(decreaseRowsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
                             if(numRows > 1)
                             {
                                 numRows--;
@@ -140,7 +161,33 @@ int main(int argc, char* argv[])
                                 frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
                                 frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
                             }
-                            break;
+                        }
+                        else if(increaseColsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            numCols++;
+                            cellWidth = spriteSheetWidth / numCols;
+                            colsDisplayString.setString("COLS:" + std::to_string(numCols));
+                            frameSizeDisplayString.setString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight));
+                            frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
+                            frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
+                        }
+                        else if(decreaseColsButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            if(numCols > 1)
+                            {
+                                numCols--;
+                                cellWidth = spriteSheetWidth / numCols;
+                                colsDisplayString.setString("COLS:" + std::to_string(numCols));
+                                frameSizeDisplayString.setString("FRAME:" + std::to_string(cellWidth) + "x" + std::to_string(cellHeight));
+                                frameBorder.setSize(sf::Vector2f(cellWidth, cellHeight));
+                                frameSprite.setTextureRect(sf::IntRect(0, 0, cellWidth, cellHeight));
+                            }
+                        }
+                    }
+                    break;
+                case sf::Event::KeyPressed:
+                    switch(event.key.code)
+                    {
                         case sf::Keyboard::Up:
                             scaleFactor = scaleFactor + 0.1;
                             spritesheet.setScale(scaleFactor, scaleFactor);
@@ -218,6 +265,10 @@ int main(int argc, char* argv[])
         }
 
         window.draw(configBackground);
+        window.draw(increaseRowsButton);
+        window.draw(decreaseRowsButton);
+        window.draw(increaseColsButton);
+        window.draw(decreaseColsButton);
         window.draw(rowsDisplayString);
         window.draw(colsDisplayString);
         window.draw(scaleDisplayString);
