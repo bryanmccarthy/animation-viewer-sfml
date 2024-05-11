@@ -1,15 +1,22 @@
-#include "SFML/Graphics/RectangleShape.hpp"
 #include <iostream>
 #include <string>
+#include <cmath>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
-#include <cmath>
 
 #define SPRITESHEET_AREA_WIDTH 650
 #define SPRITESHEET_AREA_HEIGHT 350
 
 int main(int argc, char* argv[])
 {
+    if(argc < 2) 
+    {
+        std::cerr << "Usage: " << argv[0] << " <path_to_image>" << std::endl;
+        return 1;
+    }
+
+    std::string filePath = argv[1];
+    
     sf::RenderWindow window(sf::VideoMode(800, 600), "animation viewer");
 
     sf::Color lineColor(255, 255, 255, 255);
@@ -30,7 +37,7 @@ int main(int argc, char* argv[])
     float frameDuration = 0.2f;
 
     sf::Texture texture;
-    if(!texture.loadFromFile("player_run.png"))
+    if(!texture.loadFromFile(filePath))
     {
         return EXIT_FAILURE;
     }
@@ -175,6 +182,10 @@ int main(int argc, char* argv[])
     pauseButton.setOutlineColor(sf::Color::White);
     pauseButton.setOutlineThickness(1);
 
+    sf::RectangleShape infoBackground(sf::Vector2f(650, 20));
+    infoBackground.setPosition(0, 580);
+    infoBackground.setFillColor(sf::Color::Black);
+
     sf::RectangleShape minus(sf::Vector2f(20, 2));
     minus.setFillColor(sf::Color::White);
     minus.setPosition(spritesheetZoomOutButton.getPosition().x + spritesheetZoomOutButton.getRadius() - minus.getSize().x / 2,
@@ -284,7 +295,12 @@ int main(int argc, char* argv[])
                         }
                         else if(spritesheetZoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            if(spritesheetScaleFactor > 0.5)
+                            if(spritesheetScaleFactor <= 0.5)
+                            {
+                                spritesheetBorder.setOutlineThickness(5);
+                            }
+                            
+                            if(spritesheetScaleFactor > 0.1)
                             {
                                 spritesheetScaleFactor = spritesheetScaleFactor - 0.1;
                                 spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
@@ -303,6 +319,11 @@ int main(int argc, char* argv[])
                         }
                         else if(spritesheetZoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
+                            if(spritesheetScaleFactor > 0.5)
+                            {
+                                spritesheetBorder.setOutlineThickness(1.5);
+                            }
+
                             spritesheetScaleFactor = spritesheetScaleFactor + 0.1;
                             spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
                             spritesheetBorder.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
@@ -375,15 +396,11 @@ int main(int argc, char* argv[])
         window.clear();
 
         window.draw(spritesheetBackground);
-        window.draw(frameSpriteBackground);
-        
         window.draw(spritesheet);
         window.draw(spritesheetBorder);
-        window.draw(frameSprite);
-        window.draw(frameBorder);
 
         // Draw column splits
-        for (int col = 1; col < numCols; col++)
+        for(int col = 1; col < numCols; col++)
         {
             sf::Vertex line[] =
             {
@@ -395,7 +412,7 @@ int main(int argc, char* argv[])
         }
 
         // Draw row splits
-        for (int row = 1; row < numRows; row++)
+        for(int row = 1; row < numRows; row++)
         {
             sf::Vertex line[] =
             {
@@ -406,12 +423,15 @@ int main(int argc, char* argv[])
             window.draw(line, 2, sf::Lines);
         }
 
-        if (animationPlaying && clock.getElapsedTime().asSeconds() > frameDuration) {
+        if(animationPlaying && clock.getElapsedTime().asSeconds() > frameDuration) 
+        {
             currFrameX++;
-            if (currFrameX >= numCols) {
+            if(currFrameX >= numCols) 
+            {
                 currFrameX = 0;
                 currFrameY++;
-                if (currFrameY >= numRows) {
+                if(currFrameY >= numRows) 
+                {
                     currFrameY = 0;
                 }
             }
@@ -422,8 +442,13 @@ int main(int argc, char* argv[])
             clock.restart();
         }
 
+        window.draw(frameSpriteBackground);
+        window.draw(frameSprite);
+        window.draw(frameBorder);
+
         // GUI
         window.draw(configBackground);
+        window.draw(infoBackground);
         window.draw(increaseRowsButton);
         window.draw(decreaseRowsButton);
         window.draw(increaseColsButton);
