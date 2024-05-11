@@ -4,12 +4,16 @@
 #include <SFML/Graphics/Color.hpp>
 #include <cmath>
 
-#define SPRITESHEET_POS_X 5
-#define SPRITESHEET_POS_Y 5
+#define SPRITESHEET_AREA_WIDTH 650
+#define SPRITESHEET_AREA_HEIGHT 350
 
 int main(int argc, char* argv[])
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "animation viewer");
+
+    sf::Color lineColor(255, 255, 255, 255);
+    sf::Color backgroundColor(51, 52, 67, 255);
+    sf::Color buttonInnerColor(140, 23, 39, 255);
 
     int numRows = 1;
     int numCols = 1;
@@ -18,6 +22,8 @@ int main(int argc, char* argv[])
     bool animationPlaying = false;
     int currFrameX = 0;
     int currFrameY = 0;
+    int spritesheet_pos_x;
+    int spritesheet_pos_y;
 
     sf::Clock clock;
     float frameDuration = 0.2f;
@@ -28,60 +34,55 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    sf::Color gray(144, 144, 144, 255);
-    sf::Color brown_one(38, 18, 20, 255);
-    sf::Color brown_two(77, 44, 41, 255);
-    sf::Color brown_three(120, 67, 44, 255);
-    sf::Color brown_four(181, 117, 74, 255);
-    sf::Color brown_five(209, 163, 138, 255);
-
-    sf::Sprite spritesheet(texture);
-    spritesheet.setPosition(SPRITESHEET_POS_X, SPRITESHEET_POS_Y);
-
-    sf::Sprite frameSprite(texture);
-    frameSprite.setPosition(10, 360);
-    
     int spriteSheetWidth = texture.getSize().x;
     int spriteSheetHeight = texture.getSize().y;
     int cellWidth = spriteSheetWidth / numCols;
     int cellHeight = spriteSheetHeight / numRows;
+    spritesheet_pos_x = (SPRITESHEET_AREA_WIDTH / 2) - (spriteSheetWidth / 2);
+    spritesheet_pos_y = (SPRITESHEET_AREA_HEIGHT / 2) - (spriteSheetHeight / 2);
+
+    sf::Sprite spritesheet(texture);
+    spritesheet.setPosition(spritesheet_pos_x, spritesheet_pos_y);
+
+    sf::Sprite frameSprite(texture);
+    frameSprite.setPosition(10, 360);
 
     sf::RectangleShape spritesheetBackground(sf::Vector2f(650, 350));
     spritesheetBackground.setPosition(0, 0);
-    spritesheetBackground.setFillColor(brown_one);
+    spritesheetBackground.setFillColor(backgroundColor);
     spritesheetBackground.setOutlineColor(sf::Color::Black);
     spritesheetBackground.setOutlineThickness(3);
 
     sf::RectangleShape frameSpriteBackground(sf::Vector2f(650, 230));
     frameSpriteBackground.setPosition(0, 350);
-    frameSpriteBackground.setFillColor(brown_one);
+    frameSpriteBackground.setFillColor(backgroundColor);
     frameSpriteBackground.setOutlineColor(sf::Color::Black);
     frameSpriteBackground.setOutlineThickness(3);
 
     sf::RectangleShape configBackground(sf::Vector2f(150, 600));
     configBackground.setPosition(650, 0);
-    configBackground.setFillColor(brown_two);
+    configBackground.setFillColor(backgroundColor);
     configBackground.setOutlineColor(sf::Color::Black);
     configBackground.setOutlineThickness(3);
 
     sf::RectangleShape spritesheetBorder(sf::Vector2f(spriteSheetWidth, spriteSheetHeight));
-    spritesheetBorder.setPosition(SPRITESHEET_POS_X, SPRITESHEET_POS_Y);
+    spritesheetBorder.setPosition(spritesheet_pos_x, spritesheet_pos_y);
     spritesheetBorder.setFillColor(sf::Color::Transparent);
-    spritesheetBorder.setOutlineColor(gray);
-    spritesheetBorder.setOutlineThickness(1);
+    spritesheetBorder.setOutlineColor(lineColor);
+    spritesheetBorder.setOutlineThickness(1.5);
 
     sf::RectangleShape frameBorder(sf::Vector2f(spriteSheetWidth, spriteSheetHeight));
     frameBorder.setPosition(10, 360);
     frameBorder.setFillColor(sf::Color::Transparent);
-    frameBorder.setOutlineColor(gray);
-    frameBorder.setOutlineThickness(1);
+    frameBorder.setOutlineColor(lineColor);
+    frameBorder.setOutlineThickness(1.5);
 
     sf::ConvexShape increaseRowsButton;
     increaseRowsButton.setPointCount(3);
     increaseRowsButton.setPoint(0, sf::Vector2f(770, 10));
     increaseRowsButton.setPoint(1, sf::Vector2f(760, 25));
     increaseRowsButton.setPoint(2, sf::Vector2f(780, 25));
-    increaseRowsButton.setFillColor(brown_five);
+    increaseRowsButton.setFillColor(buttonInnerColor);
     increaseRowsButton.setOutlineColor(sf::Color::White);
     increaseRowsButton.setOutlineThickness(1);
 
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
     decreaseRowsButton.setPoint(0, sf::Vector2f(760, 30));
     decreaseRowsButton.setPoint(1, sf::Vector2f(780, 30));
     decreaseRowsButton.setPoint(2, sf::Vector2f(770, 45));
-    decreaseRowsButton.setFillColor(brown_five);
+    decreaseRowsButton.setFillColor(buttonInnerColor);
     decreaseRowsButton.setOutlineColor(sf::Color::White);
     decreaseRowsButton.setOutlineThickness(1);
 
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
     increaseColsButton.setPoint(0, sf::Vector2f(770, 60));
     increaseColsButton.setPoint(1, sf::Vector2f(760, 75));
     increaseColsButton.setPoint(2, sf::Vector2f(780, 75));
-    increaseColsButton.setFillColor(brown_five);
+    increaseColsButton.setFillColor(buttonInnerColor);
     increaseColsButton.setOutlineColor(sf::Color::White);
     increaseColsButton.setOutlineThickness(1);
 
@@ -108,7 +109,7 @@ int main(int argc, char* argv[])
     decreaseColsButton.setPoint(0, sf::Vector2f(760, 80));
     decreaseColsButton.setPoint(1, sf::Vector2f(780, 80));
     decreaseColsButton.setPoint(2, sf::Vector2f(770, 95));
-    decreaseColsButton.setFillColor(brown_five);
+    decreaseColsButton.setFillColor(buttonInnerColor);
     decreaseColsButton.setOutlineColor(sf::Color::White);
     decreaseColsButton.setOutlineThickness(1);
 
@@ -117,7 +118,7 @@ int main(int argc, char* argv[])
     increaseFpsButton.setPoint(0, sf::Vector2f(770, 350));
     increaseFpsButton.setPoint(1, sf::Vector2f(760, 365));
     increaseFpsButton.setPoint(2, sf::Vector2f(780, 365));
-    increaseFpsButton.setFillColor(brown_five);
+    increaseFpsButton.setFillColor(buttonInnerColor);
     increaseFpsButton.setOutlineColor(sf::Color::White);
     increaseFpsButton.setOutlineThickness(1);
 
@@ -126,34 +127,34 @@ int main(int argc, char* argv[])
     decreaseFpsButton.setPoint(0, sf::Vector2f(760, 370));
     decreaseFpsButton.setPoint(1, sf::Vector2f(780, 370));
     decreaseFpsButton.setPoint(2, sf::Vector2f(770, 385));
-    decreaseFpsButton.setFillColor(brown_five);
+    decreaseFpsButton.setFillColor(buttonInnerColor);
     decreaseFpsButton.setOutlineColor(sf::Color::White);
     decreaseFpsButton.setOutlineThickness(1);
 
     sf::CircleShape spritesheetZoomOutButton;
     spritesheetZoomOutButton.setRadius(12);
-    spritesheetZoomOutButton.setFillColor(brown_five);
+    spritesheetZoomOutButton.setFillColor(buttonInnerColor);
     spritesheetZoomOutButton.setPosition(690, 120);
     spritesheetZoomOutButton.setOutlineColor(sf::Color::White);
     spritesheetZoomOutButton.setOutlineThickness(1);
 
     sf::CircleShape spritesheetZoomInButton;
     spritesheetZoomInButton.setRadius(12);
-    spritesheetZoomInButton.setFillColor(brown_five);
+    spritesheetZoomInButton.setFillColor(buttonInnerColor);
     spritesheetZoomInButton.setPosition(740, 120);
     spritesheetZoomInButton.setOutlineColor(sf::Color::White);
     spritesheetZoomInButton.setOutlineThickness(1);
 
     sf::CircleShape frameZoomOutButton;
     frameZoomOutButton.setRadius(12);
-    frameZoomOutButton.setFillColor(brown_five);
+    frameZoomOutButton.setFillColor(buttonInnerColor);
     frameZoomOutButton.setPosition(690, 400);
     frameZoomOutButton.setOutlineColor(sf::Color::White);
     frameZoomOutButton.setOutlineThickness(1);
 
     sf::CircleShape frameZoomInButton;
     frameZoomInButton.setRadius(12);
-    frameZoomInButton.setFillColor(brown_five);
+    frameZoomInButton.setFillColor(buttonInnerColor);
     frameZoomInButton.setPosition(740, 400);
     frameZoomInButton.setOutlineColor(sf::Color::White);
     frameZoomInButton.setOutlineThickness(1);
@@ -267,12 +268,21 @@ int main(int argc, char* argv[])
                         }
                         else if(spritesheetZoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            if(spritesheetScaleFactor > 0.6)
+                            if(spritesheetScaleFactor > 0.5)
                             {
                                 spritesheetScaleFactor = spritesheetScaleFactor - 0.1;
                                 spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
                                 spritesheetBorder.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
                                 spritesheetScaleDisplayString.setString("SPRITESHEET SCALE:" + std::to_string(spritesheetScaleFactor));
+
+                                int scaledWidth = spriteSheetWidth * spritesheetScaleFactor;
+                                int scaledHeight = spriteSheetHeight * spritesheetScaleFactor;
+
+                                spritesheet_pos_x = (SPRITESHEET_AREA_WIDTH / 2) - (scaledWidth / 2);
+                                spritesheet_pos_y = (SPRITESHEET_AREA_HEIGHT / 2) - (scaledHeight / 2);
+
+                                spritesheet.setPosition(spritesheet_pos_x, spritesheet_pos_y);
+                                spritesheetBorder.setPosition(spritesheet_pos_x, spritesheet_pos_y);
                             }
                         }
                         else if(spritesheetZoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
@@ -281,6 +291,15 @@ int main(int argc, char* argv[])
                             spritesheet.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
                             spritesheetBorder.setScale(spritesheetScaleFactor, spritesheetScaleFactor);
                             spritesheetScaleDisplayString.setString("SPRITESHEET SCALE:" + std::to_string(spritesheetScaleFactor));
+
+                            int scaledWidth = spriteSheetWidth * spritesheetScaleFactor;
+                            int scaledHeight = spriteSheetHeight * spritesheetScaleFactor;
+
+                            spritesheet_pos_x = (SPRITESHEET_AREA_WIDTH / 2) - (scaledWidth / 2);
+                            spritesheet_pos_y = (SPRITESHEET_AREA_HEIGHT / 2) - (scaledHeight / 2);
+
+                            spritesheet.setPosition(spritesheet_pos_x, spritesheet_pos_y);
+                            spritesheetBorder.setPosition(spritesheet_pos_x, spritesheet_pos_y);
                         }
                         else if(frameZoomInButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
@@ -291,7 +310,7 @@ int main(int argc, char* argv[])
                         }
                         else if(frameZoomOutButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
                         {
-                            if(frameScaleFactor > 0.6)
+                            if(frameScaleFactor > 0.5)
                             {
                                 frameScaleFactor = frameScaleFactor - 0.1;
                                 frameSprite.setScale(frameScaleFactor, frameScaleFactor);
@@ -319,7 +338,7 @@ int main(int argc, char* argv[])
                 case sf::Event::KeyPressed:
                     switch(event.key.code)
                     {
-                        case sf::Keyboard::Z:
+                        case sf::Keyboard::Space:
                             animationPlaying = !animationPlaying;
                         default:
                             break;
@@ -344,8 +363,8 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y), gray),
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + col * (cellWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y + (spriteSheetHeight * spritesheetScaleFactor)), gray)
+                sf::Vertex(sf::Vector2f(spritesheet_pos_x + col * (cellWidth * spritesheetScaleFactor), spritesheet_pos_y), lineColor),
+                sf::Vertex(sf::Vector2f(spritesheet_pos_x + col * (cellWidth * spritesheetScaleFactor), spritesheet_pos_y + (spriteSheetHeight * spritesheetScaleFactor)), lineColor)
             };
 
             window.draw(line, 2, sf::Lines);
@@ -356,8 +375,8 @@ int main(int argc, char* argv[])
         {
             sf::Vertex line[] =
             {
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X, SPRITESHEET_POS_Y + row * (cellHeight * spritesheetScaleFactor)), gray),
-                sf::Vertex(sf::Vector2f(SPRITESHEET_POS_X + (spriteSheetWidth * spritesheetScaleFactor), SPRITESHEET_POS_Y + row * (cellHeight * spritesheetScaleFactor)), gray)
+                sf::Vertex(sf::Vector2f(spritesheet_pos_x, spritesheet_pos_y + row * (cellHeight * spritesheetScaleFactor)), lineColor),
+                sf::Vertex(sf::Vector2f(spritesheet_pos_x + (spriteSheetWidth * spritesheetScaleFactor), spritesheet_pos_y + row * (cellHeight * spritesheetScaleFactor)), lineColor)
             };
 
             window.draw(line, 2, sf::Lines);
