@@ -32,6 +32,10 @@ int main(int argc, char* argv[])
     int currFrameY = 0;
     int spritesheet_pos_x;
     int spritesheet_pos_y;
+    int frame_pos_x = 10;
+    int frame_pos_y = 360;
+    bool spritesheetPanning = false;
+    sf::Vector2i lastMousePos;
 
     sf::Clock clock;
     float frameDuration = 0.2f;
@@ -53,7 +57,7 @@ int main(int argc, char* argv[])
     spritesheet.setPosition(spritesheet_pos_x, spritesheet_pos_y);
 
     sf::Sprite frameSprite(texture);
-    frameSprite.setPosition(10, 360);
+    frameSprite.setPosition(frame_pos_x, frame_pos_y);
 
     sf::RectangleShape spritesheetBackground(sf::Vector2f(650, 350));
     spritesheetBackground.setPosition(0, 0);
@@ -80,7 +84,7 @@ int main(int argc, char* argv[])
     spritesheetBorder.setOutlineThickness(1.5);
 
     sf::RectangleShape frameBorder(sf::Vector2f(spriteSheetWidth, spriteSheetHeight));
-    frameBorder.setPosition(10, 360);
+    frameBorder.setPosition(frame_pos_x, frame_pos_y);
     frameBorder.setFillColor(sf::Color::Transparent);
     frameBorder.setOutlineColor(lineColor);
     frameBorder.setOutlineThickness(1.5);
@@ -378,6 +382,36 @@ int main(int argc, char* argv[])
                         {
                             animationPlaying = false;
                         }
+                    }
+                    else if(event.mouseButton.button == sf::Mouse::Right)
+                    {
+                        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+                        if(spritesheetBackground.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            spritesheetPanning = true;
+                            lastMousePos = sf::Mouse::getPosition(window);
+                        }
+                    }
+                    break;
+                case sf::Event::MouseButtonReleased:
+                    if(event.mouseButton.button == sf::Mouse::Right)
+                    {
+                        spritesheetPanning = false;
+                    }
+                    break;
+                case sf::Event::MouseMoved:
+                    if(spritesheetPanning)
+                    {
+                        sf::Vector2i newMousePos = sf::Mouse::getPosition(window);
+                        sf::Vector2i offset = newMousePos - lastMousePos;
+
+                        spritesheet_pos_x += offset.x;
+                        spritesheet_pos_y += offset.y;
+                        spritesheet.setPosition(spritesheet_pos_x, spritesheet_pos_y);
+                        spritesheetBorder.setPosition(spritesheet_pos_x, spritesheet_pos_y);
+
+                        lastMousePos = newMousePos;
                     }
                     break;
                 case sf::Event::KeyPressed:
