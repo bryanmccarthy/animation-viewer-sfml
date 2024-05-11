@@ -1,3 +1,4 @@
+#include "SFML/Graphics/RectangleShape.hpp"
 #include <iostream>
 #include <string>
 #include <SFML/Graphics.hpp>
@@ -158,6 +159,21 @@ int main(int argc, char* argv[])
     frameZoomInButton.setPosition(740, 400);
     frameZoomInButton.setOutlineColor(sf::Color::White);
     frameZoomInButton.setOutlineThickness(1);
+
+    sf::ConvexShape playButton;
+    playButton.setPointCount(3);
+    playButton.setPoint(0, sf::Vector2f(740, 500));
+    playButton.setPoint(1, sf::Vector2f(740, 530));
+    playButton.setPoint(2, sf::Vector2f(770, 515));
+    playButton.setFillColor(buttonInnerColor);
+    playButton.setOutlineColor(sf::Color::White);
+    playButton.setOutlineThickness(1);
+
+    sf::RectangleShape pauseButton(sf::Vector2f(30, 30));
+    pauseButton.setPosition(690, 500);
+    pauseButton.setFillColor(buttonInnerColor);
+    pauseButton.setOutlineColor(sf::Color::White);
+    pauseButton.setOutlineThickness(1);
 
     sf::RectangleShape minus(sf::Vector2f(20, 2));
     minus.setFillColor(sf::Color::White);
@@ -333,6 +349,14 @@ int main(int argc, char* argv[])
                                 fpsDisplayString.setString("FPS:" + std::to_string((int)std::round(1.0f / frameDuration)));
                             }
                         }
+                        else if(playButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            animationPlaying = true;
+                        }
+                        else if(pauseButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            animationPlaying = false;
+                        }
                     }
                     break;
                 case sf::Event::KeyPressed:
@@ -408,6 +432,8 @@ int main(int argc, char* argv[])
         window.draw(decreaseFpsButton);
         window.draw(spritesheetZoomOutButton);
         window.draw(spritesheetZoomInButton);
+        window.draw(playButton);
+        window.draw(pauseButton);
         window.draw(frameZoomOutButton);
         window.draw(frameZoomInButton);
         window.draw(minus);
