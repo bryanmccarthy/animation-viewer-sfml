@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
     float spritesheetScaleFactor = 1.0;
     float frameScaleFactor = 1.0;
     bool animationPlaying = false;
+    bool hasExportedGif = false;
     int currFrameX = 0;
     int currFrameY = 0;
     int spritesheet_pos_x;
@@ -42,6 +43,8 @@ int main(int argc, char* argv[])
 
     sf::Clock clock;
     float frameDuration = 0.2f;
+
+    sf::Clock exportedGifTimer;
 
     sf::Texture texture;
     if(!texture.loadFromFile(filePath))
@@ -176,18 +179,24 @@ int main(int argc, char* argv[])
 
     sf::ConvexShape playButton;
     playButton.setPointCount(3);
-    playButton.setPoint(0, sf::Vector2f(740, 500));
-    playButton.setPoint(1, sf::Vector2f(740, 530));
-    playButton.setPoint(2, sf::Vector2f(770, 515));
+    playButton.setPoint(0, sf::Vector2f(735, 500));
+    playButton.setPoint(1, sf::Vector2f(735, 530));
+    playButton.setPoint(2, sf::Vector2f(765, 515));
     playButton.setFillColor(buttonInnerColor);
     playButton.setOutlineColor(sf::Color::White);
     playButton.setOutlineThickness(1);
 
     sf::RectangleShape pauseButton(sf::Vector2f(30, 30));
-    pauseButton.setPosition(690, 500);
+    pauseButton.setPosition(680, 500);
     pauseButton.setFillColor(buttonInnerColor);
     pauseButton.setOutlineColor(sf::Color::White);
     pauseButton.setOutlineThickness(1);
+
+    sf::RectangleShape exportGifButton(sf::Vector2f(90, 30));
+    exportGifButton.setPosition(680, 550);
+    exportGifButton.setFillColor(buttonInnerColor);
+    exportGifButton.setOutlineColor(sf::Color::White);
+    exportGifButton.setOutlineThickness(1);
 
     sf::RectangleShape infoBackground(sf::Vector2f(650, 20));
     infoBackground.setPosition(0, 580);
@@ -241,6 +250,11 @@ int main(int argc, char* argv[])
     frameScaleDisplayString.setPosition(410, 580);
     sf::Text fpsDisplayString("FPS:" + std::to_string((int)std::round(1.0f / frameDuration)), font, 24);
     fpsDisplayString.setPosition(660, 350);
+    sf::Text exportGifButtonDisplayString("export gif", font, 14);
+    exportGifButtonDisplayString.setPosition(685, 555);
+    sf::Text exportGifSuccessDisplayString("exported", font, 14);
+    exportGifSuccessDisplayString.setPosition(695, 580);
+    exportGifSuccessDisplayString.setFillColor(sf::Color::Green);
     
     while(window.isOpen())
     {
@@ -385,6 +399,12 @@ int main(int argc, char* argv[])
                         {
                             animationPlaying = false;
                         }
+                        else if(exportGifButton.getGlobalBounds().contains(mousePos.x, mousePos.y))
+                        {
+                            createGifFromSpriteSheet(texture, numRows, numCols, "animation.gif", frameDuration);
+                            hasExportedGif = true;
+                            exportedGifTimer.restart();
+                        }
                     }
                     else if(event.mouseButton.button == sf::Mouse::Right)
                     {
@@ -422,10 +442,6 @@ int main(int argc, char* argv[])
                     {
                         case sf::Keyboard::Space:
                             animationPlaying = !animationPlaying;
-                            break;
-                        case sf::Keyboard::G:
-                            createGifFromSpriteSheet(texture, numRows, numCols, "animation.gif", frameDuration);
-                            std::cout << "Created animation gif" << std::endl;
                             break;
                         default:
                             break;
@@ -501,6 +517,8 @@ int main(int argc, char* argv[])
         window.draw(spritesheetZoomInButton);
         window.draw(playButton);
         window.draw(pauseButton);
+        window.draw(exportGifButton);
+        window.draw(exportGifButtonDisplayString);
         window.draw(frameZoomOutButton);
         window.draw(frameZoomInButton);
         window.draw(minus);
@@ -515,6 +533,16 @@ int main(int argc, char* argv[])
         window.draw(frameScaleDisplayString);
         window.draw(frameSizeDisplayString);
         window.draw(fpsDisplayString);
+
+        if(hasExportedGif)
+        {
+            window.draw(exportGifSuccessDisplayString);
+        }
+
+        if(hasExportedGif && exportedGifTimer.getElapsedTime().asSeconds() >= 3.0) 
+        {
+            hasExportedGif = false;
+        }
 
         window.display();
     }
