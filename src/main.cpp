@@ -1,11 +1,14 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include "gif.h"
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Color.hpp>
 
 #define SPRITESHEET_AREA_WIDTH 650
 #define SPRITESHEET_AREA_HEIGHT 350
+
+void createGifFromSpriteSheet(const sf::Texture& spritesheet, int rows, int cols, const char* filename, int frameDuration);
 
 int main(int argc, char* argv[])
 {
@@ -419,6 +422,11 @@ int main(int argc, char* argv[])
                     {
                         case sf::Keyboard::Space:
                             animationPlaying = !animationPlaying;
+                            break;
+                        case sf::Keyboard::G:
+                            createGifFromSpriteSheet(texture, numRows, numCols, "animation.gif", frameDuration);
+                            std::cout << "Created animation gif" << std::endl;
+                            break;
                         default:
                             break;
                     }
@@ -512,4 +520,32 @@ int main(int argc, char* argv[])
     }
     
     return EXIT_SUCCESS;
+}
+
+void createGifFromSpriteSheet(const sf::Texture& spritesheet, int rows, int cols, const char* filename, int frameDuration)
+{
+    int delay = 100 / (1.0 / frameDuration);
+    
+    int frameWidth = spritesheet.getSize().x / cols;
+    int frameHeight = spritesheet.getSize().y / rows;
+
+    GifWriter g;
+    GifBegin(&g, filename, frameWidth, frameHeight, delay);
+
+    sf::Image frameImage;
+
+    for(int row = 0; row < rows; ++row) 
+    {
+        for(int col = 0; col < cols; ++col) 
+        {
+            sf::IntRect frameRect(col * frameWidth, row * frameHeight, frameWidth, frameHeight);
+            frameImage.create(frameWidth, frameHeight);
+
+            frameImage.copy(spritesheet.copyToImage(), 0, 0, frameRect, true);
+
+            GifWriteFrame(&g, frameImage.getPixelsPtr(), frameWidth, frameHeight, delay);
+        }
+    }
+
+    GifEnd(&g);
 }
